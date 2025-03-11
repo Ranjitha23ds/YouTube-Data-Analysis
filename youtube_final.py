@@ -14,8 +14,7 @@ and analyze it through a user-friendly interface.
 """)
 menu = st.sidebar.selectbox(
     "Navigation",
-    ("Home", "Collect and Store Data", "Database Management", "Query and Visualize Data", "Visualize the Data"
-    ))
+    ("Home", "Collect and Store Data", "Database Management", "Query"))
 #import streamlit as st
 dataBase = pymysql.connect(
     host="localhost",
@@ -327,7 +326,7 @@ elif menu=="Database Management":
     database_management()
 #
     
-elif menu=="Query and Visualize Data":
+elif menu=="Query":
     st.subheader("Query and Visualize Data")
 
     if dataBase is None or cursorObject is None:
