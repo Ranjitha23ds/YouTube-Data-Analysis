@@ -16,6 +16,7 @@ menu = st.sidebar.selectbox(
     "Navigation",
     ("Home", "Collect and Store Data", "Database Management", "Query"))
 #import streamlit as st
+#DATABASE CONNECTION
 dataBase = pymysql.connect(
     host="localhost",
     user="root",
@@ -23,6 +24,7 @@ dataBase = pymysql.connect(
     database="youtube2"  
 )
 cursorObject = dataBase.cursor()
+# API CINNECTION  FOR CREATE A YOUTUBE CLIENT
 def api_connection():
     api_id="AIzaSyDi4nF7hp1MOVK9eUq0EwYOwYYUFUTFnII"
     api_service_name="youtube"
@@ -30,7 +32,7 @@ def api_connection():
     youtube=build(api_service_name,api_version,developerKey=api_id)
     return youtube
 youtube=api_connection()
-       
+ # FUNCTION TO GET CHANNEL INFORMATION      
 def channel_info(Channel_id):
     request=youtube.channels().list(part="snippet,contentDetails,statistics",id=Channel_id)
     response=request.execute()
@@ -44,6 +46,7 @@ def channel_info(Channel_id):
         videoCount=i["statistics"]["videoCount"])
         
         return data
+#FUNCTION FOR RETRIVE ALL VIDEO IDS USING CHANNEL ID
 def video_id(channel_id):
     Video_id=[]
     request=youtube.channels().list(part="contentDetails",id=channel_id)
@@ -71,7 +74,7 @@ def convert_duration(iso_duration):
         return int(duration.total_seconds())  # Convert to seconds
     except:
         return None  # Return None if duration is missing or invalid
-
+# FUNCTION TO GET ALL VIDEO INFORMATION USING VIDEO ID
 def video_data(video_ids):
     video_data=[]
     for v_id in video_ids:
@@ -205,9 +208,9 @@ def comment_insert(comment_data_df):
         
     dataBase.commit()
 
-        
+#home page  function in streamlit    
 def homepage():
-#if menu=="Home":
+
     st.header("Welcome to the YouTube Data Harvesting Tool")
     st.write("""
     This tool allows you to:
@@ -215,14 +218,14 @@ def homepage():
     - Store the retrieved data in a MySQL database.
     - Query and analyze the stored data.
     """)
-
+#collect_store_data function in streamlit
 def collect_store_data():
     st.header("Collect and Store Data")
 
     channel_id=st.text_input(label="ENTER CHANNEL ID")
     if channel_id:
         st.session_state["channel_id"] = channel_id
-        channel_data=channel_info(channel_id)
+        #channel_data=channel_info(channel_id)
         channel_datas=channel_df(channel_id)
         video_data_df=video_df(channel_id)
         comment_data_df=comment_df(channel_id)
@@ -279,29 +282,21 @@ def database_management():
     fetch_comment_data_df=fetch_comment_data(channel_id)
     #dataBase.close()
 
-        # Display Channel Details
-    
-    # ✅ Display Channel Details
+        
+    # Display Channel Details
     if fetch_channel_datas.empty:
-        st.warning("⚠️ No channel data found in the database for this Channel ID.")
+        st.warning("No channel data found in the database for this Channel ID.")
     else:
         st.subheader("Channel Details")
         st.dataframe(fetch_channel_datas)
 
-    # ✅ Display Video Details
+    # Display Video Details
     if fetch_video_data_df.empty:
         st.warning("⚠️ No video data found in the database for this Channel ID.")
     else:
         if st.button("Show video details"):  # ✅ Button appears only if data exists
             st.subheader("Video Details")
             st.dataframe(fetch_video_data_df)
-
-    # ✅ Display Comment Details
-    # ✅ Always show the button but disable it when no data is available
-    #show_comment_details = st.button("Show comment details", disabled=fetch_comment_data_df.empty)
-
-# ✅ Show warning only if there's no data
-    #show_comment_details = st.button("Show comment details", key="comment_button")  
 
     # ✅ Logic for Displaying Comments
     if st.button("Show comment details", key="comment_button"):  # ✅ If button is clicked
@@ -312,8 +307,6 @@ def database_management():
             st.dataframe(fetch_comment_data_df)
     #else:  # ✅ If button is NOT clicked
         #st.warning("Click 'Show comment details' to view comments.")
-
-        
 
             
 if menu=="Home":
